@@ -1,0 +1,15 @@
+node_modules/
+dist/*
+dist
+build
+.vscode
+*.log
+*.rar
+*.zip
+.env
+.svn/*
+obj/*
+*.bak
+**/env/production.js
+note.txt
+package-lock.json
