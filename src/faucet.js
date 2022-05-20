@@ -43,7 +43,7 @@ module.exports = class Faucet {
         if (currentBalance.gte(minAllowAmount)) {
           return {
             ok: false,
-            msg: `You still have enough tokens to use.`,
+            msg: `You still have enough tokens to use. You can use the faucet again once you have less than 1 SUB.`,
           };
         }
   

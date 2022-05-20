@@ -35,7 +35,7 @@ client.on("message", async (message) => {
 
   switch (command) {
     case config.command:
-      let msg = `Sorry please wait for ${config.limit} hours between token requests from the same account!`;
+      let msg = `Sorry, please wait ${config.limit} hours between token requests from the same Discord account!`;
       if (!cache.has(message.author.id)) {
         const { ok, msg: resultMsg } = await faucet.send(args[0]);
         msg = resultMsg
@@ -46,6 +46,7 @@ client.on("message", async (message) => {
       break;
 
     default:
+      await message.reply("Unknown command. Try `!energy <address>`");
       break;
   }
 });
