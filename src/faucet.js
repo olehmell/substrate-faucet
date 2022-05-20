@@ -26,33 +26,58 @@ module.exports = class Faucet {
   }
 
   async send(address) {
-    const addressType = this.api.registry.chainSS58;
-    const check = crypto.isAddress(address);
+    try {
+      const addressType = this.api.registry.chainSS58;
+      const check = crypto.isAddress(address);
+  
+      if (check) {
+        const decimals = this.api.registry.chainDecimals[0];
+        const symbol = this.api.registry.chainTokens[0];
+        const padding = new BN(10).pow(new BN(decimals));
+  
+        const minAllowAmount = new BN(this.config.minAllowAmount).mul(padding);
+  
+        const currentAccountState = await this.api.query.system.account(address)
+        const currentBalance = currentAccountState.data.free
 
-    if (check) {
-      const keyring = new Keyring({ type: "sr25519" });
-      const sender = keyring.addFromUri(this.config.mnemonic);
-      // const sender = keyring.addFromUri('//Alice');
-      const decimals = this.api.registry.chainDecimals[0];
-      const symbol = this.api.registry.chainTokens[0];
-      const padding = new BN(10).pow(new BN(decimals));
-      const amount = new BN(this.config.amount).mul(padding);
-      console.log(`Sending ${this.config.amount} ${symbol} to ${address}`);
-      const tx = await this.api.tx.balances
-        .transferKeepAlive(address, amount)
-        .signAndSend(sender);
-      console.log("Transfer sent with hash", tx.toHex());
+        if (currentBalance.gte(minAllowAmount)) {
+          return {
+            ok: false,
+            msg: `You still have enough tokens to use.`,
+          };
+        }
+  
+        const keyring = new Keyring({ type: "sr25519" });
+        const sender = keyring.addFromUri(this.config.mnemonic);
+        // const sender = keyring.addFromUri('//Alice');
+  
+        const maxDripAmount = new BN(this.config.amount).mul(padding);
+        const amount = maxDripAmount.sub(currentBalance)
+
+        console.log(`Set ${this.config.amount} ${symbol} to ${address}`);
+        const tx = await this.api.tx.faucets
+          .drip(address, amount)
+          .signAndSend(sender);
+        console.log("Drip sent with hash", tx.toHex());
+        return {
+          ok: true,
+          msg: `Done! Set ${
+            this.config.amount
+          } ${symbol} for ${address} with hash ${tx.toHex()}`,
+        };
+      }
+  
       return {
-        ok: true,
-        msg: `Done! Transfer ${
-          this.config.amount
-        } ${symbol} to ${address} with hash ${tx.toHex()}`,
+        ok: false,
+        msg: `Invalid address! Please use the Subsocial network format with address type ${addressType}! >> <https://polkadot.js.org/apps/?rpc=${this.config.ws}#/accounts>`,
+      };
+    } catch (err) {
+      console.error(err)
+      return {
+        ok: false,
+        msg: err.stack,
       };
     }
-
-    return {
-      ok: false,
-      msg: `Invalid address! Plese use the Subsocial network format with address type ${addressType}! >> <https://polkadot.js.org/apps/?rpc=${this.config.ws}#/accounts>`,
-    };
+    
   }
 };

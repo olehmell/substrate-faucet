@@ -9,7 +9,8 @@ const envs = {
 module.exports = {
   ...envs,
   prefix: "!", // prefix for run command
-  command: 'drip', // commande for run faucet action
-  amount: 10,
+  command: 'energy', // commande for run faucet action
+  amount: 20,
+  minAllowAmount: 1,
   limit: 24, // The time limit for sending requests is in hours.
 };
