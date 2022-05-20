@@ -61,9 +61,9 @@ module.exports = class Faucet {
         console.log("Drip sent with hash", tx.toHex());
         return {
           ok: true,
-          msg: `Done! Set ${
+          msg: `Done! Your energy balance is ${
             this.config.amount
-          } ${symbol} for ${address} with hash ${tx.toHex()}`,
+          } ${symbol}. It is about 100 social transactions (create space/post/comment, upvote, follow etc.)`,
         };
       }
   
