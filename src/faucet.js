@@ -63,7 +63,7 @@ module.exports = class Faucet {
           ok: true,
           msg: `Done! Your energy balance is ${
             this.config.amount
-          } ${symbol}. It is about 100 social transactions (create space/post/comment, upvote, follow etc.)`,
+          } NRG. It is about 100 social transactions (create space/post/comment, upvote, follow etc.)`,
         };
       }
   
