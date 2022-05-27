@@ -46,7 +46,7 @@ client.on("message", async (message) => {
       break;
 
     default:
-      await message.reply("Unknown command. Try `!energy <address>`");
+      await message.reply("Unknown command. Try `!energy <substrate-address>`");
       break;
   }
 });

@@ -43,7 +43,7 @@ module.exports = class Faucet {
         if (currentBalance.gte(minAllowAmount)) {
           return {
             ok: false,
-            msg: `You still have enough tokens to use. You can use the faucet again once you have less than 1 SUB.`,
+            msg: `You still have enough tokens to use. You can use the faucet again once you have less than 1 NRG.`,
           };
         }
   
@@ -75,7 +75,7 @@ module.exports = class Faucet {
       console.error(err)
       return {
         ok: false,
-        msg: err.stack,
+        msg: "Invalid command! Try `!energy <substrate-address>`",
       };
     }
     
