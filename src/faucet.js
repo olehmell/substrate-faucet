@@ -2,6 +2,8 @@ const { ApiPromise, WsProvider, Keyring } = require("@polkadot/api"),
   { BN } = require("bn.js"),
   crypto = require("@polkadot/util-crypto");
 
+const newBalance = (balance, padding) => new BN(balance * 100).mul(padding).divn(100);
+
 module.exports = class Faucet {
   constructor(config) {
     this.config = config;
@@ -35,15 +37,14 @@ module.exports = class Faucet {
         const symbol = this.api.registry.chainTokens[0];
         const padding = new BN(10).pow(new BN(decimals));
   
-        const minAllowAmount = new BN(this.config.minAllowAmount).mul(padding);
+        const minAllowAmount = newBalance(this.config.minAllowAmount, padding)
   
-        const currentAccountState = await this.api.query.system.account(address)
-        const currentBalance = currentAccountState.data.free
+        const currentBalance = await this.api.query.energy.energyBalance(address)
 
         if (currentBalance.gte(minAllowAmount)) {
           return {
             ok: false,
-            msg: `You still have enough tokens to use. You can use the faucet again once you have less than 1 NRG.`,
+            msg: `You still have enough energy to use. You can use the faucet again once you have less than ${this.config.minAllowAmount} NRG.`,
           };
         }
   
@@ -51,19 +52,19 @@ module.exports = class Faucet {
         const sender = keyring.addFromUri(this.config.mnemonic);
         // const sender = keyring.addFromUri('//Alice');
   
-        const maxDripAmount = new BN(this.config.amount).mul(padding);
+        const maxDripAmount = newBalance(this.config.amount, padding)
         const amount = maxDripAmount.sub(currentBalance)
 
         console.log(`Set ${this.config.amount} ${symbol} to ${address}`);
-        const tx = await this.api.tx.faucets
-          .drip(address, amount)
+        const tx = await this.api.tx.energy
+          .generateEnergy(address, amount)
           .signAndSend(sender);
         console.log("Drip sent with hash", tx.toHex());
         return {
           ok: true,
           msg: `Done! Your energy balance is ${
             this.config.amount
-          } NRG. It is about 100 social transactions (create space/post/comment, upvote, follow etc.)`,
+          } NRG. You can use it for social actions (create space/post/comment, upvote, follow etc.)`,
         };
       }
   
@@ -75,7 +76,7 @@ module.exports = class Faucet {
       console.error(err)
       return {
         ok: false,
-        msg: "Invalid command! Try `!energy <substrate-address>`",
+        msg: `Unexpected error! ${err}`,
       };
     }
     
