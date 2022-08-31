@@ -34,7 +34,7 @@ module.exports = class Faucet {
   
       if (check) {
         const decimals = this.api.registry.chainDecimals[0];
-        const symbol = this.api.registry.chainTokens[0];
+        const symbol = "NRG"
         const padding = new BN(10).pow(new BN(decimals));
   
         const minAllowAmount = newBalance(this.config.minAllowAmount, padding)
